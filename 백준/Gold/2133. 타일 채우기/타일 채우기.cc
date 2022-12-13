@@ -1,30 +1,37 @@
 #include <stdio.h>
+using namespace std;
 
-int tile_size;
-int tile_array[31];
+int N;
+int dp[31];
 
-int tiling(int size) {
-	if (size == 0)			//size==4일 때 for문에서 tiling(0)을 위해서
-		return 1;
-	if (size == 1)
-		return 0;
-	else if (size == 2)
-		return 3;
-
-	if (tile_array[size] != 0)
-		return tile_array[size];
-
-	int result = tiling(size - 2) * 3;
-
-	for (int i = 4; i <= size; i++) {
-		if (i % 2 == 0)
-			result += 2 * tiling(size - i);
-	}
-
-	return tile_array[size] = result;
+void init()
+{
+	scanf("%d", &N);
+	
+	dp[0] = 1;
+	dp[2] = 3;
 }
 
-int main() {
-	scanf("%d", &tile_size);
-	printf("%d", tiling(tile_size));
+void solve()
+{
+	for (int i = 3; i <= N; i++)
+	{
+		//홀수인 경우
+		if (i % 2 == 1)
+			continue;
+
+		//짝수인 경우
+		dp[i] = dp[i - 2] * 3;
+		for (int j = i - 4; j >= 0; j -= 2)
+			dp[i] += dp[j] * 2;
+	}
+}
+
+int main()
+{
+	init();
+	solve();
+	printf("%d", dp[N]);
+
+	return 0;
 }
