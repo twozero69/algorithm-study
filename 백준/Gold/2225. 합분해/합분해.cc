@@ -1,5 +1,4 @@
-#include <iostream>
-using namespace std;
+#include <stdio.h>
 
 /*
 -생각난 방법
@@ -22,7 +21,7 @@ int dp[201];
 
 void init()
 {
-	cin >> N >> K;
+	scanf("%d %d", &N, &K);
 
 	for (int n = 0; n <= N; n++)
 		dp[n] = 1;
@@ -41,13 +40,9 @@ void solve()
 
 int main()
 {
-	ios::sync_with_stdio(false);
-	cin.tie(NULL);
-	cout.tie(NULL);
-
 	init();
 	solve();
-	cout << dp[N];
+	printf("%d", dp[N]);
 
 	return 0;
 }
