@@ -1,7 +1,7 @@
 #include <stdio.h>
 
 int N;	//2~200
-int max[201];
+int max[200];
 int result;
 
 void init()
