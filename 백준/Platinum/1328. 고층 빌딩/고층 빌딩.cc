@@ -39,12 +39,21 @@
 		dp[N][L][R] = dp[N - 1][L - 1][R] + dp[N - 1][L][R - 1] + dp[N - 1][L][R] * (N - 2)
 
 		이 방법이 가장 구현도 간편하면서 문제도 없음.
+
+-주의사항
+	경우의 수를 저장할 때 1000000007으로 나눈 나머지를 저장하므로 최대 1000000006이 dp값으로 저장됨.
+	int로 담을 경우 *2까지는 괜찮지만 *3부터 오버플로우가 나버리므로 *100까지 버틸 수 있는 자료형으로 계산해야 함.
+
+-메모리 최적화
+	dp[N][L][R] = dp[N - 1][L - 1][R] + dp[N - 1][L][R - 1] + dp[N - 1][L][R] * (N - 2)의 점화식에서
+	dp[N][][]과 dp[N - 1][][]만 사용되므로 메모리의 사용량을 줄일 수 있음.
+	N부분에는 2개의 인덱스만 부여해서 홀수, 짝수로 구분해서 사용.
 */
 
 #include <stdio.h>
 
 int N, L, R;
-int dp[101][101][101];
+int dp[2][101][101];
 
 void init()
 {
@@ -56,11 +65,14 @@ void solve()
 {
 	for (int num = 2; num <= N; num++)
 	{
+		int before = (num - 1) % 2;
+		int curr = num % 2;
+	
 		for (int left = 1; left <= num; left++)
 		{
 			for (int right = 1; right <= num; right++)
 			{
-				dp[num][left][right] = ((unsigned long long)dp[num - 1][left - 1][right] + (unsigned long long)dp[num - 1][left][right - 1]	+ (unsigned long long)dp[num - 1][left][right] * ((unsigned long long)num - 2)) % 1000000007ULL;
+				dp[curr][left][right] = ((unsigned long long)dp[before][left - 1][right] + (unsigned long long)dp[before][left][right - 1]	+ (unsigned long long)dp[before][left][right] * ((unsigned long long)num - 2)) % 1000000007ULL;
 			}
 		}
 	}
@@ -70,7 +82,7 @@ int main()
 {
 	init();
 	solve();
-	printf("%d", dp[N][L][R]);
+	printf("%d", dp[N % 2][L][R]);
 
 	return 0;
 }
