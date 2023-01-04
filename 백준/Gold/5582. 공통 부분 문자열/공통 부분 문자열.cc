@@ -23,14 +23,15 @@
 
 -메모리 최적화
 	
-	2차원 배열을 1차원 배열로 압축해서 사용함.
+	dp배열을 모두 저장할 것 없이 2개의 행만 저장해서 메모리를 절약.
+
 */
 
 #include <stdio.h>
 
 char str1[4002], str2[4002];
 int len1, len2;
-int dp[4001][4001];
+int dp[2][4001];
 int result = 0;
 
 int my_strlen(char* str)
@@ -54,16 +55,19 @@ void solve()
 {
 	for (int i = 1; i <= len1; i++)
 	{
+		int curr = i % 2;
+		int before = (i - 1) % 2;
+
 		for (int j = 1; j <= len2; j++)
 		{
 			if (str1[i] == str2[j])
 			{
-				dp[i][j] = dp[i - 1][j - 1] + 1;
-				if (result < dp[i][j])
-					result = dp[i][j];
+				dp[curr][j] = dp[before][j - 1] + 1;
+				if (result < dp[curr][j])
+					result = dp[curr][j];
 			}
 			else
-				dp[i][j] = 0;
+				dp[curr][j] = 0;
 		}
 	}
 }
