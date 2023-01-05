@@ -22,12 +22,17 @@
 		dp[n][back][check] 형태의 배열을 사용.
 
 		O(N * 10 * 2^10) => 대충 10^6으로 조건안에 가능함.
+
+-데이터 최적화
+	N = 1 ~ 100에 대한 모든 정보를 보관할 필요가 없음.
+	이전 단계에 대해서만 기록을 유지함.
+	홀짝을 이용하여 2개 세트만큼의 데이터를 사용.
 */
 
 #include <stdio.h>
 
 int N;
-int dp[100][10][1024];
+int dp[2][10][1024];
 
 void init()
 {
@@ -42,30 +47,45 @@ int calc_num(int num1, int num2)
 	return (num1 + num2) % 1000000000;
 }
 
-void calc_dp(int next_back, int before_back, int before_check, int n)
+void calc_dp(int next_idx, int next_back, int before_idx, int before_back, int before_check)
 {
 	int next_check = before_check | (1 << next_back);
-	dp[n][next_back][next_check] = calc_num(dp[n][next_back][next_check], dp[n - 1][before_back][before_check]);
+	dp[next_idx][next_back][next_check] = calc_num(dp[next_idx][next_back][next_check], dp[before_idx][before_back][before_check]);
+}
+
+void reset_dp(int next_idx)
+{
+	for (int check = 0; check < 1024; check++)
+	{
+		for (int back = 0; back <= 9; back++)
+		{
+			dp[next_idx][back][check] = 0;
+		}
+	}
 }
 
 void solve()
 {
 	for (int n = 1; n < N; n++)
 	{
+		int next_idx = n % 2;
+		int before_idx = (n - 1) % 2;
+		reset_dp(next_idx);
+
 		for (int check = 0; check < 1024; check++)
 		{
 			//back = 0
-			calc_dp(0, 1, check, n);
+			calc_dp(next_idx, 0, before_idx, 1, check);
 
 			//back = 1 ~ 8
 			for (int back = 1; back <= 8; back++)
 			{
-				calc_dp(back, back - 1, check, n);
-				calc_dp(back, back + 1, check, n);
+				calc_dp(next_idx, back, before_idx, back - 1, check);
+				calc_dp(next_idx, back, before_idx, back + 1, check);
 			}
 
 			//back = 9
-			calc_dp(9, 8, check, n);
+			calc_dp(next_idx, 9, before_idx, 8, check);
 		}
 	}
 }
@@ -73,8 +93,9 @@ void solve()
 void print_result()
 {
 	int result = 0;
+	int final_idx = (N - 1) % 2;
 	for (int back = 0; back <= 9; back++)
-		result = calc_num(result, dp[N - 1][back][1023]);
+		result = calc_num(result, dp[final_idx][back][1023]);
 
 	printf("%d", result);
 }
