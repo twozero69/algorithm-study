@@ -37,6 +37,17 @@ void init()
 		dp[0][back][1 << back] = 1;
 }
 
+int calc_num(int num1, int num2)
+{
+	return (num1 + num2) % 1000000000;
+}
+
+void calc_dp(int next_back, int before_back, int before_check, int n)
+{
+	int next_check = before_check | (1 << next_back);
+	dp[n][next_back][next_check] = calc_num(dp[n][next_back][next_check], dp[n - 1][before_back][before_check]);
+}
+
 void solve()
 {
 	for (int n = 1; n < N; n++)
@@ -44,20 +55,17 @@ void solve()
 		for (int check = 0; check < 1024; check++)
 		{
 			//back = 0
-			int next_check = check | (1 << 0);
-			dp[n][0][next_check] = (dp[n][0][next_check] + dp[n - 1][1][check]) % 1000000000;
+			calc_dp(0, 1, check, n);
 
 			//back = 1 ~ 8
 			for (int back = 1; back <= 8; back++)
 			{
-				next_check = check | (1 << back);
-				dp[n][back][next_check] = (dp[n][back][next_check] + dp[n - 1][back - 1][check]) % 1000000000;
-				dp[n][back][next_check] = (dp[n][back][next_check] + dp[n - 1][back + 1][check]) % 1000000000;
+				calc_dp(back, back - 1, check, n);
+				calc_dp(back, back + 1, check, n);
 			}
 
 			//back = 9
-			next_check = check | (1 << 9);
-			dp[n][9][next_check] = (dp[n][9][next_check] + dp[n - 1][8][check]) % 1000000000;
+			calc_dp(9, 8, check, n);
 		}
 	}
 }
@@ -66,7 +74,7 @@ void print_result()
 {
 	int result = 0;
 	for (int back = 0; back <= 9; back++)
-		result = (result + dp[N - 1][back][1023]) % 1000000000;
+		result = calc_num(result, dp[N - 1][back][1023]);
 
 	printf("%d", result);
 }
