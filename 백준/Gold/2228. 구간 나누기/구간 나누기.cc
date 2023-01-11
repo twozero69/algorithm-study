@@ -45,6 +45,11 @@
 	다만 순환순서에 따라 구현이 복잡해지거나 쉬워지므로 어느 쪽이 더 간편할지 고려해야함.
 
 	애매할 때는 체크배열과 재귀호출로 top-down 형태로 구현하면 간단하게 구현할 수 있음.
+
+-메모리 최적화(부분합, 누적합)
+	sum[start][end] 배열로 arr[start] ~ arr[end]의 합을 저장했으나
+	sum[end]배열로 arr[0] ~ arr[end]의 합을 저장하고 sum[end] - sum[start - 1]로 기존처럼 사용가능.
+	메모리와 컴퓨팅파워 사이의 trade-off.
 */
 
 #include <stdio.h>
@@ -52,7 +57,7 @@
 int N, M;
 int arr[100];
 int dp[100][50];
-int sum[100][100];
+int sum[100];
 
 void init()
 {
@@ -61,12 +66,9 @@ void init()
 		scanf("%d", &arr[i]);
 
 	//sum배열 작성
-	for (int start = 0; start < N; start++)
-	{
-		sum[start][start] = arr[start];
-		for (int end = start + 1; end < N; end++)
-			sum[start][end] = sum[start][end - 1] + arr[end];
-	}
+	sum[0] = arr[0];
+	for (int idx = 1; idx < N; idx++)
+		sum[idx] = sum[idx - 1] + arr[idx];
 
 	//dp배열 초기화
 	for (int idx = 0; idx < N; idx++)
@@ -83,11 +85,16 @@ void init()
 		return;
 
 	//idx = 1
-	dp[1][0] = sum[0][1];
+	dp[1][0] = sum[1];
 	if (dp[1][0] < arr[0])
 		dp[1][0] = arr[0];
 	if (dp[1][0] < arr[1])
 		dp[1][0] = arr[1];
+}
+
+int get_sum(int start, int end)
+{
+	return sum[end] - sum[start - 1];
 }
 
 void solve()
@@ -103,8 +110,9 @@ void solve()
 			//arr[idx]를 포함하는 경우
 			for (int k = 0; k <= idx; k++)
 			{
-				if (dp[idx][0] < sum[k][idx])
-					dp[idx][0] = sum[k][idx];
+				int term = get_sum(k, idx);
+				if (dp[idx][0] < term)
+					dp[idx][0] = term;
 			}
 		}
 
@@ -122,7 +130,7 @@ void solve()
 			int end_k = idx - 2;
 			for (int k = (sector - 1) * 2; k <= end_k; k++) //idx = sector * 2 부터 dp배열에 의미 있는 값이 들어있음
 			{
-				int term = dp[k][sector - 1] + sum[k + 2][idx];
+				int term = dp[k][sector - 1] + get_sum(k + 2, idx);
 				if (term > dp[idx][sector])
 					dp[idx][sector] = term;
 			}
